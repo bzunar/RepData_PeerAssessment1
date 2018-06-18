@@ -13,13 +13,13 @@ output:
 Load the data.
 Process/transform the data (if necessary) into a format suitable for your analysis.
 
-```{r message = FALSE}
+
+```r
 library(dplyr)
 library(ggplot2)
 library(magrittr)
 
 data <- read.csv("activity.csv")
-
 ```
 
 ## What is mean total number of steps taken per day?
@@ -27,7 +27,8 @@ data <- read.csv("activity.csv")
 Calculate the total number of steps taken per day.
 Make a histogram of the total number of steps taken each day.
 
-```{r}
+
+```r
 data %>% 
     group_by(date) %>% 
     summarise(total = sum(steps, na.rm = TRUE)) %>% 
@@ -38,10 +39,12 @@ data %>%
     labs(y = "Number of days")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 Calculate and report the mean and median of the total number of steps taken per day.
 
-```{r}
 
+```r
 # calculate mean
 data %>% 
     group_by(date) %>% 
@@ -49,7 +52,13 @@ data %>%
     .$total %>% 
     mean %>% 
     cat("Mean number of steps taken each day: ", ., "\n")
+```
 
+```
+## Mean number of steps taken each day:  9354.23
+```
+
+```r
 # calculate median
 data %>% 
     group_by(date) %>% 
@@ -57,14 +66,18 @@ data %>%
     .$total %>% 
     median %>% 
     cat("Median number of steps taken each day: ", ., "\n")
+```
 
+```
+## Median number of steps taken each day:  10395
 ```
 
 ## What is the average daily activity pattern?
 
 Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 
-```{r}
+
+```r
 data %>% 
     group_by(interval) %>% 
     summarise(mean = mean(steps, na.rm = TRUE)) %>%
@@ -73,19 +86,24 @@ data %>%
     labs(title = "Average number of steps taken") +
     labs(x = "The 5-min interval") + 
     labs(y = "Number of steps averaged across all days")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 data %>% 
     group_by(interval) %>% 
     summarise(mean = mean(steps, na.rm = TRUE)) %>%
     .$mean %>% 
     which.max %>%
     data$interval[.]
-    
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -94,20 +112,25 @@ Note that there are a number of days/intervals where there are missing values (c
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
+
+```r
 data %>% 
     is.na %>% 
     table %>% 
     .[2] %>% 
     as.integer
+```
 
+```
+## [1] 2304
 ```
 
 Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 #replace NAs with the mean for that 5-minute interval
 mean.steps.by.interval <- data %>% 
     group_by(interval) %>% 
@@ -119,63 +142,16 @@ data.na.replaced <- data
 data.na.replaced$steps[is.na(data.na.replaced$steps)] <- mean.steps.by.interval$mean[is.na(data.na.replaced$steps)]
 
 rm(mean.steps.by.interval)
-
 ```
 
 Function "multiplot" for ploting multiple ggplot2 graphs on one page has been taken from http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 
-```{r echo = FALSE}
-# Multiple plot function
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
 
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-
-  numPlots = length(plots)
-
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                    ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-
- if (numPlots==1) {
-    print(plots[[1]])
-
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-```
 
 Make a histogram of the total number of steps taken each day.
 
-```{r}
+
+```r
 g1 <- data %>% 
     group_by(date) %>% 
     summarise(total = sum(steps, na.rm = TRUE)) %>% 
@@ -197,13 +173,14 @@ g2 <- data.na.replaced %>%
     coord_cartesian(ylim = c(0, 10.1))
 
 multiplot(g1, g2, cols = 2)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment?
 
-```{r}
 
+```r
 # calculate mean
 data %>% 
     group_by(date) %>% 
@@ -211,15 +188,26 @@ data %>%
     .$total %>% 
     mean %>% 
     cat("Mean number of steps taken per day (NAs present): ", ., "\n")
+```
 
+```
+## Mean number of steps taken per day (NAs present):  9354.23
+```
+
+```r
 data.na.replaced %>% 
     group_by(date) %>% 
     summarise(total = sum(steps, na.rm = TRUE)) %>% 
     .$total %>% 
     mean %>% 
     cat("Mean number of steps taken per day (NAs replaced): ", ., "\n")
+```
 
+```
+## Mean number of steps taken per day (NAs replaced):  9530.724
+```
 
+```r
 # calculate median
 data %>% 
     group_by(date) %>% 
@@ -227,14 +215,23 @@ data %>%
     .$total %>% 
     median %>% 
     cat("Median number of steps taken per day (NAs present): ", ., "\n")
+```
 
+```
+## Median number of steps taken per day (NAs present):  10395
+```
+
+```r
 data.na.replaced %>% 
     group_by(date) %>% 
     summarise(total = sum(steps, na.rm = TRUE)) %>% 
     .$total %>% 
     median %>% 
     cat("Median number of steps taken per day (NAs replaced): ", ., "\n")
+```
 
+```
+## Median number of steps taken per day (NAs replaced):  10439
 ```
 
 What is the impact of imputing missing data on the estimates of the total daily number of steps?
@@ -247,7 +244,8 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 
 Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 data.na.replaced[,"weekday"] <- data.na.replaced$date %>% 
     as.Date %>% 
     weekdays(abbr = TRUE)
@@ -267,7 +265,8 @@ data.na.replaced %>%
     labs(title = "Average number of steps taken") +
     labs(x = "The 5-min interval") + 
     labs(y = "Average number of steps in the time interval")
-    
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 **There are differences in activity patterns between weekdays and weekends.**
